@@ -1,0 +1,28 @@
+body{
+    margin: 0%;
+    padding: 0%;
+}
+
+.center{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+}
+
+canvas{
+    border-color: grey;
+    border-width: 4px;
+    border-style: solid;
+    width: 700px;
+    height: 700px;
+}
+
+.middle{
+    width: 100vw;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
