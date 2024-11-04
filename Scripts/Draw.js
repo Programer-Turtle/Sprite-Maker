@@ -1,8 +1,10 @@
 let WidthResIn = document.getElementById("WidthRes")
 let HeightResIn = document.getElementById("HeightRes")
 let ColorIn = document.getElementById("Color")
+let ModeIn = document.getElementById('Mode')
 let Canvas = document.getElementById("Screen")
 let Context = Canvas.getContext('2d')
+let NameIn = document.getElementById("Name")
 
 let Pixels = {}
 
@@ -12,6 +14,7 @@ let scaleY
 
 let MouseX
 let MouseY
+let PrevHover = null
 
 WidthResIn.value = 1
 HeightResIn.value = 1
@@ -54,26 +57,84 @@ function SizeChange(){
             Pixels[`${x},${y}`] = "blank"
         }
     }
-    console.log(Pixels)
     DrawSqaures()
 }
 
-function DrawPixel(){
+function DrawPixel(Event){
+    if(Event.button == 0){
+        let LocXMultiplier = WidthResIn.value/400
+        let LocYMultiplier = HeightResIn.value/400
+        let SelectX = Math.floor(MouseX*LocXMultiplier)
+        let SelectY = Math.floor(MouseY*LocYMultiplier)
+        let Mode = ModeIn.value
+        if(Mode == "pen"){
+            Pixels[`${SelectX},${SelectY}`] = ColorIn.value
+        }
+        else if(Mode == "eraser"){
+            Pixels[`${SelectX},${SelectY}`] = "blank"
+        }
+
+        DrawSqaures()
+    }
+    else if(Event.button == 2){
+        let LocXMultiplier = WidthResIn.value/400
+        let LocYMultiplier = HeightResIn.value/400
+        let SelectX = Math.floor(MouseX*LocXMultiplier)
+        let SelectY = Math.floor(MouseY*LocYMultiplier)
+        Pixels[`${SelectX},${SelectY}`] = "blank"
+
+        DrawSqaures()
+    }
+}
+
+function DrawOnePixelToScreen(x,y,color){
+    let XmoveIndex = Math.ceil(400/WidthResIn.value)
+    let YmoveIndex = Math.ceil(400/HeightResIn.value)
+    if(color != "blank"){
+        Context.fillStyle = color
+        Context.fillRect(x*XmoveIndex,y*YmoveIndex,XmoveIndex,YmoveIndex)
+    }
+    else{
+        Context.clearRect(x*XmoveIndex,y*YmoveIndex,XmoveIndex,YmoveIndex )
+    }
+    return
+}
+
+function Export(){
+    let blob = new Blob([JSON.stringify(Pixels)], { type: 'text/plain' })
+    let link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `${NameIn.value}.json`
+    link.click()
+
+    setTimeout(() => URL.revokeObjectURL(link.href), 100);
+}
+
+Canvas.addEventListener("mousemove", (Event) => {
+    SetMousePosition(Event)
+
     let LocXMultiplier = WidthResIn.value/400
     let LocYMultiplier = HeightResIn.value/400
     let SelectX = Math.floor(MouseX*LocXMultiplier)
     let SelectY = Math.floor(MouseY*LocYMultiplier)
-    Pixels[`${SelectX},${SelectY}`] = ColorIn.value
-    console.log(`${SelectX},${SelectY}`)
-    DrawSqaures()
-}
+    if(PrevHover == null || SelectX != PrevHover[0] || SelectY != PrevHover[1]){
+        if(PrevHover!=null){
+            DrawOnePixelToScreen(PrevHover[0],PrevHover[1],Pixels[`${PrevHover[0]},${PrevHover[1]}`])
+        }
+        PrevHover = [SelectX,SelectY]
 
-window.addEventListener("mousemove", (Event) => {
-    SetMousePosition(Event)
+        DrawOnePixelToScreen(SelectX,SelectY, ColorIn.value+"62")
+    }
 })
-Canvas.addEventListener('mouseup', DrawPixel)
+Canvas.addEventListener('mouseup', (Event)=>{
+    DrawPixel(Event)
+})
 
-window.addEventListener('resize', SetRectSize)
+Canvas.addEventListener('contextmenu', (Event)=>{
+    Event.preventDefault()
+})
+
+Canvas.addEventListener('resize', SetRectSize)
 WidthResIn.addEventListener('input', SizeChange)
 HeightResIn.addEventListener('input', SizeChange)
 SizeChange()

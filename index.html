@@ -16,8 +16,18 @@
             <input id="HeightRes" type="number" min="1">
             <label style="margin-left: 10px;" for="Color">Color</label>
             <input id="Color" type="color">
+            <label style="margin-left: 10px;" for="Mode">Mode</label>
+            <select id="Mode">
+                <option value="pen">Pen</option>
+                <option value="eraser">eraser</option>
+            </select>
         </div>
         <canvas id="Screen" width="400" height="400"></canvas>
+        <div style="margin-bottom: 10px;" class="middle">
+            <label for="Name">Name</label>
+            <input id="Name">
+            <button onclick="Export()">Export</button>
+        </div>
     </div>
 </body>
 </html>
